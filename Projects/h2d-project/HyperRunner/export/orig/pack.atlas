@@ -1,0 +1,201 @@
+pack.png
+	size: 2048, 2048
+Diamond
+	bounds: 1921, 745, 96, 96
+GemCounter
+	bounds: 1991, 1870, 32, 32
+alien
+	index: 0
+	bounds: 1255, 865, 192, 192
+alien
+	index: 2
+	bounds: 1255, 865, 192, 192
+alien
+	index: 1
+	bounds: 1255, 671, 192, 192
+alien
+	index: 10
+	bounds: 1255, 477, 192, 192
+alien
+	index: 11
+	bounds: 1255, 283, 192, 192
+alien
+	index: 12
+	bounds: 1255, 89, 192, 192
+alien
+	index: 13
+	bounds: 1449, 37, 192, 192
+alien
+	index: 14
+	bounds: 1643, 37, 192, 192
+alien
+	index: 15
+	bounds: 1837, 37, 192, 192
+animated_bullet_1
+	index: 0
+	bounds: 1991, 2012, 55, 33
+animated_bullet_1
+	index: 1
+	bounds: 1991, 1977, 55, 33
+animated_bullet_1
+	index: 2
+	bounds: 1991, 1942, 55, 33
+circle
+	bounds: 677, 11, 80, 80
+dead
+	bounds: 1, 1445, 800, 600
+dig-machine-back
+	bounds: 1605, 1325, 384, 720
+dig-machine-front
+	index: 0
+	bounds: 1, 723, 336, 720
+dig-machine-front
+	index: 1
+	bounds: 1, 1, 336, 720
+dig-machine-front
+	index: 2
+	bounds: 339, 723, 336, 720
+dig-machine-front
+	index: 3
+	bounds: 339, 1, 336, 720
+elevator
+	bounds: 1595, 843, 384, 480
+elevator-grinder
+	bounds: 677, 93, 576, 192
+elevator-grinder-cross
+	bounds: 677, 1059, 576, 384
+elevator-rope
+	bounds: 1595, 745, 324, 96
+grinder-platform
+	bounds: 1449, 231, 576, 96
+level_completed
+	bounds: 803, 1445, 800, 600
+player
+	index: 10
+	bounds: 1449, 1299, 144, 144
+player
+	index: 11
+	bounds: 1449, 1153, 144, 144
+player
+	index: 12
+	bounds: 1449, 1007, 144, 144
+player
+	index: 13
+	bounds: 1449, 861, 144, 144
+player
+	index: 14
+	bounds: 1449, 715, 144, 144
+vfx_particle
+	bounds: 1991, 1904, 36, 36
+wall
+	bounds: 1449, 329, 576, 384
+wall-light-1
+	bounds: 677, 673, 576, 384
+wall-light-2
+	bounds: 677, 287, 576, 384
+walll-border
+	bounds: 1255, 1059, 192, 384
+white-pixel
+	bounds: 2029, 1939, 1, 1
+
+pack2.png
+	size: 2048, 1024
+alien
+	index: 16
+	bounds: 1, 777, 192, 192
+alien
+	index: 17
+	bounds: 1, 583, 192, 192
+alien
+	index: 18
+	bounds: 195, 777, 192, 192
+alien
+	index: 19
+	bounds: 1, 389, 192, 192
+alien
+	index: 3
+	bounds: 195, 583, 192, 192
+alien
+	index: 4
+	bounds: 389, 777, 192, 192
+alien
+	index: 5
+	bounds: 1, 195, 192, 192
+alien
+	index: 7
+	bounds: 1, 195, 192, 192
+alien
+	index: 6
+	bounds: 195, 389, 192, 192
+alien
+	index: 8
+	bounds: 389, 583, 192, 192
+alien
+	index: 9
+	bounds: 583, 777, 192, 192
+platform-tile-1
+	bounds: 1, 1, 192, 192
+platform-tile-2
+	bounds: 195, 195, 192, 192
+platform-tile-3
+	bounds: 389, 389, 192, 192
+platform-tile-4
+	bounds: 583, 583, 192, 192
+platform-tile-5
+	bounds: 777, 777, 192, 192
+platform-tile-6
+	bounds: 195, 1, 192, 192
+platform-tile-7
+	bounds: 389, 195, 192, 192
+platform-tile-8
+	bounds: 583, 389, 192, 192
+platform-tile-9
+	bounds: 777, 583, 192, 192
+player
+	index: 0
+	bounds: 971, 777, 192, 192
+player
+	index: 2
+	bounds: 971, 777, 192, 192
+player
+	index: 1
+	bounds: 389, 1, 192, 192
+player
+	index: 3
+	bounds: 583, 195, 192, 192
+player
+	index: 15
+	bounds: 777, 437, 144, 144
+player
+	index: 16
+	bounds: 971, 631, 144, 144
+player
+	index: 17
+	bounds: 1165, 825, 144, 144
+player
+	index: 18
+	bounds: 583, 49, 144, 144
+player
+	index: 19
+	bounds: 777, 291, 144, 144
+player
+	index: 20
+	bounds: 1311, 825, 144, 144
+player
+	index: 4
+	bounds: 1457, 825, 144, 144
+player
+	index: 5
+	bounds: 1457, 825, 144, 144
+player
+	index: 6
+	bounds: 1603, 825, 144, 144
+player
+	index: 9
+	bounds: 1603, 825, 144, 144
+player
+	index: 7
+	bounds: 1749, 825, 144, 144
+player
+	index: 8
+	bounds: 1749, 825, 144, 144

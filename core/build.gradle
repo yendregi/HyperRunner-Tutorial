@@ -1,0 +1,21 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-core'
+
+dependencies {
+	api "com.badlogicgames.gdx:gdx:$gdxVersion"
+	api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+	api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+	api "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+	api "games.rednblack.hyperlap2d:runtime-libgdx:$h2dVersion"
+
+	// Talos extension
+	api "com.talosvfx:talos-libgdx:$talosVersion"
+	api "games.rednblack.hyperlap2d:libgdx-talos-extension:$h2dTalosExtension"
+
+// https://mvnrepository.com/artifact/com.talosvfx/talos-libgdx
+//	api 'com.talosvfx:talos-libgdx:1.4.0'
+// https://mvnrepository.com/artifact/games.rednblack.hyperlap2d/libgdx-talos-extension
+//	api 'games.rednblack.hyperlap2d:libgdx-talos-extension:0.1.1'
+
+
+}

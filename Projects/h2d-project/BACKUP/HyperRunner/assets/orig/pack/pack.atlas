@@ -1,0 +1,185 @@
+pack.png
+	size: 2048, 2048
+Diamond
+	bounds: 1647, 635, 96, 96
+GemCounter
+	bounds: 579, 563, 32, 32
+alien
+	index: 0
+	bounds: 1641, 1461, 192, 192
+alien
+	index: 2
+	bounds: 1641, 1461, 192, 192
+alien
+	index: 1
+	bounds: 1835, 1847, 192, 192
+alien
+	index: 10
+	bounds: 1641, 1267, 192, 192
+alien
+	index: 11
+	bounds: 1835, 1653, 192, 192
+alien
+	index: 12
+	bounds: 1641, 1073, 192, 192
+alien
+	index: 13
+	bounds: 1835, 1459, 192, 192
+alien
+	index: 14
+	bounds: 1641, 879, 192, 192
+alien
+	index: 15
+	bounds: 1835, 1265, 192, 192
+alien
+	index: 16
+	bounds: 1835, 1071, 192, 192
+alien
+	index: 17
+	bounds: 1835, 877, 192, 192
+alien
+	index: 18
+	bounds: 677, 545, 192, 192
+alien
+	index: 19
+	bounds: 871, 545, 192, 192
+alien
+	index: 3
+	bounds: 1065, 591, 192, 192
+alien
+	index: 4
+	bounds: 1259, 591, 192, 192
+alien
+	index: 5
+	bounds: 1453, 591, 192, 192
+alien
+	index: 7
+	bounds: 1453, 591, 192, 192
+alien
+	index: 6
+	bounds: 579, 351, 192, 192
+alien
+	index: 8
+	bounds: 579, 157, 192, 192
+alien
+	index: 9
+	bounds: 773, 351, 192, 192
+circle
+	bounds: 1939, 795, 80, 80
+dig-machine-back
+	bounds: 1, 1319, 384, 720
+dig-machine-front
+	index: 0
+	bounds: 1, 597, 336, 720
+dig-machine-front
+	index: 1
+	bounds: 387, 1319, 336, 720
+dig-machine-front
+	index: 2
+	bounds: 339, 597, 336, 720
+dig-machine-front
+	index: 3
+	bounds: 725, 1319, 336, 720
+elevator
+	bounds: 677, 837, 384, 480
+elevator-grinder
+	bounds: 1, 17, 576, 192
+elevator-grinder-cross
+	bounds: 1, 211, 576, 384
+elevator-rope
+	bounds: 677, 739, 324, 96
+grinder-platform
+	bounds: 1063, 785, 576, 96
+platform-tile-1
+	bounds: 773, 157, 192, 192
+platform-tile-2
+	bounds: 967, 351, 192, 192
+platform-tile-3
+	bounds: 967, 157, 192, 192
+platform-tile-4
+	bounds: 1161, 397, 192, 192
+platform-tile-5
+	bounds: 1161, 203, 192, 192
+platform-tile-6
+	bounds: 1355, 397, 192, 192
+platform-tile-7
+	bounds: 1355, 203, 192, 192
+platform-tile-8
+	bounds: 1549, 397, 192, 192
+platform-tile-9
+	bounds: 1549, 203, 192, 192
+player
+	index: 10
+	bounds: 579, 11, 144, 144
+player
+	index: 11
+	bounds: 725, 11, 144, 144
+player
+	index: 12
+	bounds: 871, 11, 144, 144
+player
+	index: 13
+	bounds: 1017, 11, 144, 144
+player
+	index: 0
+	bounds: 1163, 9, 192, 192
+player
+	index: 2
+	bounds: 1163, 9, 192, 192
+player
+	index: 1
+	bounds: 1357, 9, 192, 192
+player
+	index: 3
+	bounds: 1551, 9, 192, 192
+player
+	index: 14
+	bounds: 1647, 733, 144, 144
+player
+	index: 15
+	bounds: 1793, 731, 144, 144
+player
+	index: 16
+	bounds: 1745, 585, 144, 144
+player
+	index: 17
+	bounds: 1743, 439, 144, 144
+player
+	index: 18
+	bounds: 1743, 293, 144, 144
+player
+	index: 19
+	bounds: 1745, 147, 144, 144
+player
+	index: 20
+	bounds: 1745, 1, 144, 144
+player
+	index: 4
+	bounds: 1891, 585, 144, 144
+player
+	index: 5
+	bounds: 1891, 585, 144, 144
+player
+	index: 6
+	bounds: 1889, 439, 144, 144
+player
+	index: 9
+	bounds: 1889, 439, 144, 144
+player
+	index: 7
+	bounds: 1889, 293, 144, 144
+player
+	index: 8
+	bounds: 1889, 293, 144, 144
+vfx_particle
+	bounds: 1003, 799, 36, 36
+wall
+	bounds: 1063, 883, 576, 384
+wall-light-1
+	bounds: 1063, 1655, 576, 384
+wall-light-2
+	bounds: 1063, 1269, 576, 384
+walll-border
+	bounds: 1641, 1655, 192, 384
+white-pixel
+	bounds: 1065, 588, 1, 1
