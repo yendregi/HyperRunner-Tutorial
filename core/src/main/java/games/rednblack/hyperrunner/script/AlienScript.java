@@ -3,6 +3,7 @@ package games.rednblack.hyperrunner.script;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.ALIEN;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.LEFT;
+import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletElementName;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
@@ -38,8 +39,6 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     private float yDamp = 1.0f;
 
     private int playerEntity;
-
-    private boolean alienTriggered = false;
     private int alienDirection;
 
     private int incG = 0;
@@ -60,14 +59,14 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     public void act(float delta) {
         AlienComponent alienComponent = alienMapper.get(this.entity);
         if(!alienComponent.isDead)
-            moveAllien();
+            moveAllien(alienComponent);
     }
 
     private float lastX = -100.0f;
     private int lastXcc = 0;
 
-    public void moveAllien() {
-        //alien starts to react only when player triggers the alien by getting close, then alien sets impulses towards player, and with a 15% chance shoots towards the player
+    public void moveAllien(AlienComponent alienComponent) {
+        //alien starts to react only when player triggers the alien by getting close, then alien sets impulses towards player, and with a slim chance to shoot towards the player
 
         PhysicsBodyComponent playerPhysicsBodyComponent = physicsMapper.get(playerEntity);
         Body playerBody = playerPhysicsBodyComponent.body;
@@ -79,8 +78,8 @@ public class AlienScript extends BasicScript implements PhysicsContact {
         Vector2 alienBody_c = alienBody.getWorldCenter();
         Vector2 playBody_c = playerBody.getWorldCenter();
         float alienTriggerDistance = 4.5f;
-        if(!alienTriggered) {
-            alienTriggered = (getDistance(playBody_c, alienBody_c) < alienTriggerDistance);
+        if(!alienComponent.alienTriggered) {
+            alienComponent.alienTriggered = (getDistance(playBody_c, alienBody_c) < alienTriggerDistance);
         }
         if(lastX != alienBody_c.x){
             lastX = alienBody_c.x;
@@ -88,7 +87,7 @@ public class AlienScript extends BasicScript implements PhysicsContact {
             lastXcc++;
         }
 
-        if(alienTriggered) {
+        if(alienComponent.alienTriggered) {
             Vector2 alienV = alienBody.getLinearVelocity();
             if( Math.abs(alienV.x) < maxSpeed && Math.abs(alienV.y) < maxSpeed/2) {
                 if(lastXcc > 10) {
@@ -108,7 +107,6 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     public void alienShoot(int lastPlayerFacingDirection) {
         if(HyperRunner.mSceneLoader!=null) {
             //load a bullet from the library
-            String bulletElementName = "bullet_2";
             CompositeItemVO bulletData = HyperRunner.mSceneLoader.loadVoFromLibrary(bulletElementName);
             if (bulletData != null) {
                 //set layer & create unique name and identifier
@@ -122,8 +120,8 @@ public class AlienScript extends BasicScript implements PhysicsContact {
                 Vector2 bodyCenter = body.getWorldCenter();
 
                 //figure out direction and offset position
-                bulletData.flipX = ((lastPlayerFacingDirection==RIGHT)? false : true);
-                bulletData.x = bodyCenter.x+((lastPlayerFacingDirection==RIGHT)? 0.59f : -0.59f);
+                bulletData.flipX = (lastPlayerFacingDirection != RIGHT);
+                bulletData.x = bodyCenter.x+((lastPlayerFacingDirection==RIGHT)? 0.48f : -0.48f);
                 bulletData.y = bodyCenter.y+0.3f;
 
                 //create the entity & init
@@ -178,9 +176,16 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     public void endContact(int contactEntity, Fixture contactFixture, Fixture ownFixture, Contact contact) {
 
         MainItemComponent mainItemComponent = mainItemMapper.get(contactEntity);
-        //BulletComponent bulletComponent = bulletMapper.get(animEntity);
+
+        AlienComponent otherAlienComponent = alienMapper.get(contactEntity);
+        AlienComponent alienComponent = alienMapper.get(this.entity);
+
         if (mainItemComponent.tags.contains("platform"))
             yDamp = 1.0f;
+
+        // if an alien touches another alien, they are triggered
+        if (mainItemComponent.tags.contains("alien"))
+            otherAlienComponent.alienTriggered = alienComponent.alienTriggered;
 
     }
 

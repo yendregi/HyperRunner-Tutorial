@@ -6,6 +6,7 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.UP;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.DOWN;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.JUMP;
+import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletElementName;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.Gdx;
@@ -92,7 +93,6 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
     public void playerShoot() {
         if(HyperRunner.mSceneLoader!=null) {
             //load a bullet from the library
-            String bulletElementName = "bullet_2";
             CompositeItemVO bulletData = HyperRunner.mSceneLoader.loadVoFromLibrary(bulletElementName);
             if (bulletData != null) {
                 //set layer & create unique name and identifier
@@ -107,7 +107,7 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
 
                 //figure out direction and offset position
                 bulletData.flipX = (this.lastPlayerFacingDirection != RIGHT);
-                bulletData.x = bodyCenter.x+((this.lastPlayerFacingDirection==RIGHT)? 0.59f : -0.59f);
+                bulletData.x = bodyCenter.x+((this.lastPlayerFacingDirection==RIGHT)? 0.48f : -0.48f);
                 bulletData.y = bodyCenter.y+0.3f;
 
                 //create the entity & init

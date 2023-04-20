@@ -9,4 +9,7 @@ public class ScriptGlobals {
 
     public static final int ALIEN = 5;
     public static final int PLAYER = 6;
+
+    public static final String bulletElementName = "bullet_3";
+
 }

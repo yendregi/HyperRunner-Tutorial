@@ -33,6 +33,12 @@ public class AlienAnimationSystem extends IteratingSystem {
     @Override
     protected void process(int entity) {
 
+        /*
+         > this is how in theory it should work ...
+            ParentNodeComponent nodeComponent = parentMapper.get(entity);
+            Body body = physicsMapper.get(nodeComponent.parentEntity).body;
+         */
+
         MainItemComponent mainItemComponent = mainItemMapper.get(entity);
 
         PhysicsBodyComponent mPhysicsBodyComponent = physicsMapper.get(entity);
@@ -43,10 +49,9 @@ public class AlienAnimationSystem extends IteratingSystem {
             return;
         AlienComponent alienComponent = alienMapper.get(entity);
 
-        //the long way to get the entities animation..
+        //the long way to get the entities animation.. .. do not do as this will be a memory leak due to huge obj creation
         ItemWrapper root = new ItemWrapper(HyperRunner.mSceneLoader.getRoot(), HyperRunner.mSceneLoader.getEngine());
         ItemWrapper alienItem = root.getChild(mainItemComponent.itemIdentifier);
-        alienItem.getChild("alien-ani").getEntity();
 
         SpriteAnimationComponent spriteAnimationComponent = spriteMapper.get(alienItem.getChild("alien-ani").getEntity());
         SpriteAnimationStateComponent spriteAnimationStateComponent = spriteStateMapper.get(alienItem.getChild("alien-ani").getEntity());
