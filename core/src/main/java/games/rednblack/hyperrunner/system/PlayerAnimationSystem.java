@@ -26,7 +26,6 @@ public class PlayerAnimationSystem extends IteratingSystem {
     @Override
     protected void process(int entity) {
 
-        //note : it's odd this works as the alien animation system follows the same patter, but needed to get the animation child differently
         ParentNodeComponent nodeComponent = parentMapper.get(entity);
         Body body = physicsMapper.get(nodeComponent.parentEntity).body;
 

@@ -4,6 +4,7 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.ALIEN;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.LEFT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletElementName;
+import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletOffset;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
@@ -13,6 +14,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 
 import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.components.MainItemComponent;
+import games.rednblack.editor.renderer.components.ParentNodeComponent;
+import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
 import games.rednblack.editor.renderer.physics.PhysicsContact;
@@ -22,15 +25,21 @@ import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.hyperrunner.HyperRunner;
 import games.rednblack.hyperrunner.component.AlienComponent;
 import games.rednblack.hyperrunner.component.BulletComponent;
+import games.rednblack.hyperrunner.component.PlayerComponent;
+import games.rednblack.hyperrunner.util.SoundManager;
 
 
 public class AlienScript extends BasicScript implements PhysicsContact {
 
     protected com.artemis.World mEngine;
+    protected ComponentMapper<ParentNodeComponent> parentMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
     protected ComponentMapper<BulletComponent> bulletMapper;
     protected ComponentMapper<AlienComponent> alienMapper;
+    protected ComponentMapper<ScriptComponent> scriptMapper;
+    protected ComponentMapper<PlayerComponent> playerMapper;
+
     private int animEntity;
 
     private PhysicsBodyComponent mPhysicsBodyComponent;
@@ -47,9 +56,9 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     public void init(int item) {
         super.init(item);
 
+        System.out.println("script init with " + item);
         ItemWrapper itemWrapper = new ItemWrapper(item, mEngine);
-
-        animEntity = itemWrapper.getChild("bullet-ani").getEntity();
+        animEntity = itemWrapper.getChild("alien-ani").getEntity();
 
         mPhysicsBodyComponent = physicsMapper.get(item);
 
@@ -57,8 +66,8 @@ public class AlienScript extends BasicScript implements PhysicsContact {
 
     @Override
     public void act(float delta) {
-        AlienComponent alienComponent = alienMapper.get(this.entity);
-        if(!alienComponent.isDead)
+        AlienComponent alienComponent = alienMapper.get(animEntity);
+        if(alienComponent!=null && !alienComponent.isDead)
             moveAllien(alienComponent);
     }
 
@@ -108,7 +117,7 @@ public class AlienScript extends BasicScript implements PhysicsContact {
         if(HyperRunner.mSceneLoader!=null) {
             //load a bullet from the library
             CompositeItemVO bulletData = HyperRunner.mSceneLoader.loadVoFromLibrary(bulletElementName);
-            if (bulletData != null) {
+            if( bulletData != null ) {
                 //set layer & create unique name and identifier
                 bulletData.layerName = "Default";
                 incG++;
@@ -121,12 +130,12 @@ public class AlienScript extends BasicScript implements PhysicsContact {
 
                 //figure out direction and offset position
                 bulletData.flipX = (lastPlayerFacingDirection != RIGHT);
-                bulletData.x = bodyCenter.x+((lastPlayerFacingDirection==RIGHT)? 0.48f : -0.48f);
+                bulletData.x = bodyCenter.x+((lastPlayerFacingDirection==RIGHT)? bulletOffset : -1*bulletOffset);
                 bulletData.y = bodyCenter.y+0.3f;
 
                 //create the entity & init
-                ItemWrapper root = new ItemWrapper(HyperRunner.mSceneLoader.getRoot(), HyperRunner.mSceneLoader.getEngine());
-                int bullet = HyperRunner.mSceneLoader.getEntityFactory().createEntity(root.getEntity(), bulletData);
+                //ItemWrapper root = new ItemWrapper(HyperRunner.mSceneLoader.getRoot(), HyperRunner.mSceneLoader.getEngine());
+                int bullet = HyperRunner.mSceneLoader.getEntityFactory().createEntity(HyperRunner.mSceneLoader.getRoot(), bulletData);
                 HyperRunner.mSceneLoader.getEntityFactory().initAllChildren(bullet, bulletData);
                 HyperRunner.mSceneLoader.addComponentByTagName("bullet", BulletComponent.class); //add the bullet component to the created entity
 
@@ -135,18 +144,22 @@ public class AlienScript extends BasicScript implements PhysicsContact {
                 bulletScript.setBulletDirection(lastPlayerFacingDirection);
                 bulletScript.setFiredBy(ALIEN);
 
-                //have to recreate the root element otherwise we don't find the bullet we just created? why is this?
-                root = new ItemWrapper(HyperRunner.mSceneLoader.getRoot(), HyperRunner.mSceneLoader.getEngine());
+                //create the root element to get the bullet-ani entity id for creating component retriever
+                ItemWrapper root = new ItemWrapper(HyperRunner.mSceneLoader.getRoot(), mEngine);
 
                 ItemWrapper bulletItem = root.getChild(bulletData.itemIdentifier);
-                ComponentRetriever.create(bulletItem.getChild("bullet-ani").getEntity(), BulletComponent.class, HyperRunner.mSceneLoader.getEngine());
+                ComponentRetriever.create(bulletItem.getChild("bullet-ani").getEntity(), BulletComponent.class, mEngine);
                 bulletItem.addScript(bulletScript);
 
-            }else{
+            } else {
                 System.err.println("No '"+bulletElementName+"' composite found in library!");
             }
         }
 
+    }
+
+    public int getAlienAnimEntity() {
+        return animEntity;
     }
 
     public float getDistance(Vector2 p1, Vector2 p2){
@@ -166,7 +179,7 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     public void beginContact(int contactEntity, Fixture contactFixture, Fixture ownFixture, Contact contact) {
 
         MainItemComponent mainItemComponent = mainItemMapper.get(contactEntity);
-        //BulletComponent bulletComponent = bulletMapper.get(animEntity);
+
         if (mainItemComponent.tags.contains("platform"))
             yDamp = 0.0f;
 
@@ -177,15 +190,24 @@ public class AlienScript extends BasicScript implements PhysicsContact {
 
         MainItemComponent mainItemComponent = mainItemMapper.get(contactEntity);
 
-        AlienComponent otherAlienComponent = alienMapper.get(contactEntity);
-        AlienComponent alienComponent = alienMapper.get(this.entity);
 
         if (mainItemComponent.tags.contains("platform"))
             yDamp = 1.0f;
 
-        // if an alien touches another alien, they are triggered
-        if (mainItemComponent.tags.contains("alien"))
+        // if an alien touches another alien, they're 'all' triggered
+        if (mainItemComponent.tags.contains("alien")) {
+            ScriptComponent alienScript = scriptMapper.get(contactEntity);
+            AlienComponent otherAlienComponent = alienMapper.get(((AlienScript)alienScript.scripts.get(0)).getAlienAnimEntity());
+            AlienComponent alienComponent = alienMapper.get(animEntity);
             otherAlienComponent.alienTriggered = alienComponent.alienTriggered;
+        }
+
+        // if an alien touches player - he's dead
+        if (mainItemComponent.tags.contains("player")) {
+            ScriptComponent playerScript = scriptMapper.get(contactEntity);
+            PlayerComponent playerComponent = ((PlayerScript)playerScript.scripts.get(0)).getPlayerComponent();
+            playerComponent.isDead = true;
+        }
 
     }
 
@@ -212,5 +234,8 @@ public class AlienScript extends BasicScript implements PhysicsContact {
 
     public void setPlayerEntity(int playerEntity) {
         this.playerEntity = playerEntity;
+    }
+
+    public void setSoundManager(SoundManager soundManager) {
     }
 }

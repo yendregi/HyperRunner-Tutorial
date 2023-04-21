@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 
 android {
-	compileSdkVersion 29
+	compileSdkVersion 31
 	sourceSets {
 		main {
 			manifest.srcFile 'AndroidManifest.xml'
@@ -76,6 +76,13 @@ dependencies {
 	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
 	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
 	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
+
+	// gdx-miniaudio
+	//natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-armeabi-v7a"
+	//natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-arm64-v8a"
+	//natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-x86"
+	//natives "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-x86_64"
+
 
 }
 

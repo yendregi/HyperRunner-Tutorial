@@ -6,17 +6,13 @@ import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.physics.box2d.Body;
 
-import games.rednblack.editor.renderer.components.MainItemComponent;
 import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponent;
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
-import games.rednblack.editor.renderer.utils.ComponentRetriever;
-import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.hyperrunner.HyperRunner;
 import games.rednblack.hyperrunner.component.AlienComponent;
-
 
 @All(AlienComponent.class)
 public class AlienAnimationSystem extends IteratingSystem {
@@ -27,39 +23,20 @@ public class AlienAnimationSystem extends IteratingSystem {
     protected ComponentMapper<SpriteAnimationComponent> spriteMapper;
     protected ComponentMapper<SpriteAnimationStateComponent> spriteStateMapper;
     protected ComponentMapper<TransformComponent> transformMapper;
-    protected ComponentMapper<MainItemComponent> mainItemMapper;
-
 
     @Override
     protected void process(int entity) {
 
-        /*
-         > this is how in theory it should work ...
-            ParentNodeComponent nodeComponent = parentMapper.get(entity);
-            Body body = physicsMapper.get(nodeComponent.parentEntity).body;
-         */
+        ParentNodeComponent nodeComponent = parentMapper.get(entity);
+        Body body = physicsMapper.get(nodeComponent.parentEntity).body;
 
-        MainItemComponent mainItemComponent = mainItemMapper.get(entity);
-
-        PhysicsBodyComponent mPhysicsBodyComponent = physicsMapper.get(entity);
-        if(mPhysicsBodyComponent==null)
-            return;
-        Body body = mPhysicsBodyComponent.body;
         if (body == null)
             return;
+
         AlienComponent alienComponent = alienMapper.get(entity);
-
-        //the long way to get the entities animation.. .. do not do as this will be a memory leak due to huge obj creation
-        ItemWrapper root = new ItemWrapper(HyperRunner.mSceneLoader.getRoot(), HyperRunner.mSceneLoader.getEngine());
-        ItemWrapper alienItem = root.getChild(mainItemComponent.itemIdentifier);
-
-        SpriteAnimationComponent spriteAnimationComponent = spriteMapper.get(alienItem.getChild("alien-ani").getEntity());
-        SpriteAnimationStateComponent spriteAnimationStateComponent = spriteStateMapper.get(alienItem.getChild("alien-ani").getEntity());
-
+        SpriteAnimationComponent spriteAnimationComponent = spriteMapper.get(entity);
+        SpriteAnimationStateComponent spriteAnimationStateComponent = spriteStateMapper.get(entity);
         TransformComponent transformComponent = transformMapper.get(entity);
-
-        if(spriteAnimationComponent == null || spriteAnimationStateComponent == null)
-            return;
 
         if(alienComponent.isDead) {
             spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
@@ -68,9 +45,10 @@ public class AlienAnimationSystem extends IteratingSystem {
             //we wait a couple millis then delete the alien
             if(alienComponent.deathTime==0){
                 alienComponent.deathTime = System.currentTimeMillis();
+                HyperRunner.soundManager.play("alien death");
             }else if(alienComponent.deathTime > 0) {
                 if((System.currentTimeMillis() - alienComponent.deathTime) > alienComponent.deathPlayTime ) {
-                    HyperRunner.mEngine.delete(entity); // delete this bullet on touch
+                    HyperRunner.mEngine.delete(nodeComponent.parentEntity);
                 }
             }
         } else {
@@ -86,7 +64,6 @@ public class AlienAnimationSystem extends IteratingSystem {
             } else {
                 spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
                 spriteAnimationComponent.currentAnimation = "idle";
-
             }
 
             if (body.getLinearVelocity().y > 0.2f) {

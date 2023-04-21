@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -30,7 +31,11 @@ public class HUD extends Stage {
 
     private int diamonds = -1;
 
-    private int nextStage = 0;
+    private boolean playerRetry = false;
+
+    private boolean playerDeathTrigger = false;
+    private boolean level_1_trigger = false;
+    private Label tryAgainLabel;
 
     public HUD(Skin skin, TextureAtlas atlas, Viewport viewport, Batch batch) {
         super(viewport, batch);
@@ -43,14 +48,11 @@ public class HUD extends Stage {
         Image diamond = new Image(atlas.findRegion("GemCounter"));
         gemCounter.add(diamond);
 
-        mDiamondsLabel = new Label("Diamonds", skin);
-        gemCounter.add(mDiamondsLabel);
 
-
-        ImageButton test = new ImageButton(skin, "left");
-        test.setWidth(0.1f);
-        test.setHeight(0.1f);
-        test.addListener(new ClickListener(){
+        tryAgainLabel = new Label("-TRY AGAIN-", skin);
+        tryAgainLabel.setPosition(325,200);
+        tryAgainLabel.setVisible(false);
+        tryAgainLabel.addListener(new ClickListener(){
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 return super.touchDown(event, x, y, pointer, button);
@@ -58,12 +60,14 @@ public class HUD extends Stage {
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 super.touchUp(event, x, y, pointer, button);
-                nextStage++;
+                playerRetry = true;
             }
         });
 
+        mDiamondsLabel = new Label("Diamonds", skin);
+        gemCounter.add(mDiamondsLabel);
+
         root.add(gemCounter).expand().left().top().colspan(2);
-       // root.add(test).expand().right().top().colspan(1);
         root.row();
 
         ImageButton leftButton = new ImageButton(skin, "left");
@@ -111,6 +115,7 @@ public class HUD extends Stage {
         root.add(upButton).expand().right().bottom(); // on screen up
 
         addActor(root);
+        addActor(tryAgainLabel);
     }
 
     public void setPlayerScript(PlayerScript playerScript) {
@@ -121,27 +126,42 @@ public class HUD extends Stage {
     public void act(float delta) {
         super.act(delta);
 
-        if(nextStage == 0) {
-            if (leftClicked)
-                mPlayerScript.movePlayer(LEFT);
-            if (rightClicked)
-                mPlayerScript.movePlayer(RIGHT);
+        if (leftClicked)
+            mPlayerScript.movePlayer(LEFT);
+        if (rightClicked)
+            mPlayerScript.movePlayer(RIGHT);
 
-            if (diamonds != mPlayerScript.getPlayerComponent().diamondsCollected) {
-                diamonds = mPlayerScript.getPlayerComponent().diamondsCollected;
-                mDiamondsLabel.setText("x" + diamonds);
+        if (mPlayerScript.getPlayerComponent() != null && diamonds != mPlayerScript.getPlayerComponent().diamondsCollected) {
+            diamonds = mPlayerScript.getPlayerComponent().diamondsCollected;
+            mDiamondsLabel.setText("x" + diamonds);
+        }
+
+        if (playerRetry) {
+            playerRetry = false;
+            tryAgainLabel.setVisible(false);
+            //load the main scene again and recreate the level
+            this.setPlayerScript(HyperRunner.loadDefaultScence());
+            System.out.println("player retry");
+        }
+
+        if(mPlayerScript.getPlayerComponent() != null && mPlayerScript.getPlayerComponent().isDead) {
+            if(!playerDeathTrigger) {
+                playerDeathTrigger = true;
+                HyperRunner.mSceneLoader.loadScene("PlayerDies", HyperRunner.mViewport);
+                System.out.println("player is dead");
+                HyperRunner.soundManager.play("player dies");
+                tryAgainLabel.setVisible(true);
             }
         }
 
-        int levNum = 3;
-        if(nextStage>0)
-            if(nextStage!=0 && nextStage%levNum==1) {
+        if(mPlayerScript.getPlayerComponent() != null && mPlayerScript.getPlayerComponent().level1Done) {
+            if(!level_1_trigger) {
+                level_1_trigger = true;
                 HyperRunner.mSceneLoader.loadScene("LevelComplete", HyperRunner.mViewport);
-            } else if(nextStage!=0 && nextStage%levNum==2) {
-                HyperRunner.mSceneLoader.loadScene("PlayerDies", HyperRunner.mViewport);
-            } else if(nextStage!=0 && nextStage%levNum==0) {
-                HyperRunner.mSceneLoader.loadScene("MainScene", HyperRunner.mViewport);
+                System.out.println("level 1 done");
+                tryAgainLabel.setVisible(true);
             }
+        }
 
     }
 }

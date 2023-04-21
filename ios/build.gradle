@@ -24,4 +24,7 @@ dependencies {
 	implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
 	implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-ios"
 	implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-ios"
+
+	// gdx-miniaudio
+	//implementation "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-ios"
 }
