@@ -3,21 +3,21 @@ The initial hyper runner tutorial created by fngm expanded for my own learning -
 
 # What's here beyond the initial tutorial?
 1. talos vfx add-ons (thanks @fgnm for making this possible!!!)
-	1. the end portal is a talos vfx effect ... this is a portal I made post the talos vfx portal tutorial - see https://www.youtube.com/watch?v=7deMylejPyw
+	1. the end portal is a talos vfx effect ... this is a portal effect I made post the talos vfx portal tutorial - see https://www.youtube.com/watch?v=7deMylejPyw
 	2. the projectiles used, 'bullets', are talos vfx orbs with lighting!
 2. "system" add-ons:
-	1. aliens and player are dynamically added
-	2. aliens have a basic ai
+	1. aliens and player are dynamically added (probably an over-kill, but demonstrates some dynamic loading that is possible)
+	2. aliens have a basic "AI"
 	3. aliens and player both can shoot a 'bullet'
 		1. the bullet is an instance of a talos vfx orb effect with lighting!
 	4. depending on whom shot the 'bullet', either the player or alien dies
 	5. there is a concept of a basic "game loop" : 
 		1. when player "dies" they sees a death screen & can retry the level
-		2. when player "wins" (they exit the level) they sees a level complete & can retry the level
+		2. when player "wins" (they exit the level) they sees a level complete screen & can retry the level
 	6. there is a basic sound manager created which adds:
 		1. ability to load and play "sounds"
-			1. level 1 stage is music I wrote based on the java beads library
-			2. lazer sound is thanks to "Kenny" (the jesus media god of open source!)
+			1. level 1 stage is music I wrote based on the java beads library - see http://www.beadsproject.net/
+			2. lazer sound is thanks to "Kenny" (the jesus media god of open source! https://www.kenney.nl/ )
 			3. other sound effects are my own fun 
 
 # some basics if your really new to this
