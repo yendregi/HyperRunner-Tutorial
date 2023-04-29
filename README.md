@@ -16,7 +16,7 @@ The initial hyper runner tutorial created by fngm expanded for my own learning -
 		2. when player "wins" (they exit the level) they sees a level complete screen & can retry the level
 	6. there is a basic sound manager created which adds:
 		1. ability to load and play "sounds"
-			1. level 1 stage is music I wrote based on the java beads library - see http://www.beadsproject.net/
+			1. level 1 stage music is something I wrote using the java beads library - see http://www.beadsproject.net/
 			2. lazer sound is thanks to "Kenny" (the jesus media god of open source! https://www.kenney.nl/ )
 			3. other sound effects are my own fun 
 
