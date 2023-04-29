@@ -84,6 +84,14 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
 
     }
 
+    /**
+     * The basic player/alien shoot prototype method... sort of...
+     * It is note worthy that within in this method, each time a player/alien shoots
+     * an entirely new object is being created - then destroyed (when the bullet hits a terminal point)
+     * This is not what you want to do when it comes any major turn over of game objects.
+     * The piece that is missing here would be another high level obj manager of sorts where
+     * you can grab a certain amount of 'free' objs to do your 'bidding'.
+     */
     public void playerShoot() {
         if (HyperRunner.mSceneLoader != null) {
             //load a bullet from the library

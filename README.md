@@ -17,12 +17,12 @@ The initial hyper runner tutorial created by fngm expanded for my own learning -
 	6. there is a basic sound manager created which adds:
 		1. ability to load and play "sounds"
 			1. level 1 stage music is something I wrote using the java beads library demo - see http://www.beadsproject.net/
-			2. lazer sound is thanks to "Kenny" (the jesus media god of open source! https://www.kenney.nl/ )
+			2. "fire bullet" & "alien death" sound is thanks to "Kenny" (the jesus media god of open source! https://www.kenney.nl/ )
 			3. other sound effects are my own fun 
 
 # some basics if your really new to this
 1. get android studio : https://developer.android.com/codelabs/basic-android-kotlin-compose-install-android-studio#0
-	1. this allow you to view the entire code set as the "project"
+	1. this will allow you to view the entire code set as the "project"
 	2. allows you launch the app as a desktop app
 	3. allows you launch the app within an "android instance"
 	4. provided you have the right "apple products & licenses" can create an iOS app

@@ -19,5 +19,7 @@ public class ScriptGlobals {
     public static final float bulletOffset = 0.49f;
 
     public static final float alienMaxSpeed = 2.1f;
+    public static final float alienTriggerDistance = 4.5f;
+    public static final float bulletMaxSpeed = 5.1f;
 
 }

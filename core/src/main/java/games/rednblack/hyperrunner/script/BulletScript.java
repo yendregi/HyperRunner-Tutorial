@@ -3,6 +3,7 @@ package games.rednblack.hyperrunner.script;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.ALIEN;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.PLAYER;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
+import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletMaxSpeed;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -36,9 +37,7 @@ public class BulletScript extends BasicScript implements PhysicsContact {
     protected int animEntity;
 
     private PhysicsBodyComponent mPhysicsBodyComponent;
-
-    private final float maxSpeed = 5.1f;
-
+    
     private int bulletDirection=-1;
     private int firedByEntity;
 
@@ -50,7 +49,7 @@ public class BulletScript extends BasicScript implements PhysicsContact {
         animEntity = itemWrapper.getChild("bullet-ani").getEntity();
         mPhysicsBodyComponent = physicsMapper.get(item);
 
-        // probably a bad place to put this, alas, this represents the event every time an alien fires a bullet
+        // probably a bad place to put this, alas, this represents the event : anyone whom fires a bullet
         HyperRunner.soundManager.play("fire bullet");
 
     }
@@ -67,7 +66,7 @@ public class BulletScript extends BasicScript implements PhysicsContact {
         if (body == null)
             return;
 
-        body.setLinearVelocity(((this.bulletDirection == RIGHT) ? maxSpeed : -1*maxSpeed), 0);
+        body.setLinearVelocity(((this.bulletDirection == RIGHT) ? bulletMaxSpeed : -1*bulletMaxSpeed), 0);
 
     }
 
