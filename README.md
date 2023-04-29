@@ -37,7 +37,7 @@ The initial hyper runner tutorial created by fngm expanded for my own learning -
 3. created jar will be complied to $home\lwjgl3\build\libs\HyperRunner-0.0.1.jar
 	1. to run the created jar (double clicking it from the "windows-exploder" ui can launch it if you have java 11 set as your default jvm... otherwise issue will arise)
 		1. cd to $home\lwjgl3\build\libs\
-			1. java -jar HyperRunner-0.0.1.jar
+			1. `java -jar HyperRunner-0.0.1.jar`
 
 # JDK requirement
 1. you need JDK 11 - see https://www.oracle.com/ca-en/java/technologies/javase/jdk11-archive-downloads.html
