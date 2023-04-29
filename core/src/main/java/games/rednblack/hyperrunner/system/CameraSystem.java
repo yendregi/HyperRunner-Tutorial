@@ -9,6 +9,10 @@ import com.badlogic.gdx.math.Vector3;
 import games.rednblack.editor.renderer.components.TransformComponent;
 import games.rednblack.editor.renderer.components.ViewPortComponent;
 
+/**
+ * The camera system
+ * @author fgnm
+ */
 @All(ViewPortComponent.class)
 public class CameraSystem extends IteratingSystem {
 

@@ -5,7 +5,6 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.PLAYER;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.UP;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.DOWN;
-import static games.rednblack.hyperrunner.script.ScriptGlobals.JUMP;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletElementName;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletOffset;
 
@@ -31,8 +30,11 @@ import games.rednblack.hyperrunner.component.BulletComponent;
 import games.rednblack.hyperrunner.component.DiamondComponent;
 import games.rednblack.hyperrunner.component.PlayerComponent;
 import games.rednblack.hyperrunner.component.PortalComponent;
-import games.rednblack.hyperrunner.util.SoundManager;
 
+/**
+ * the player script
+ * @author fgnm & adapation by Jédregi
+ */
 public class PlayerScript extends BasicScript implements PhysicsContact {
 
     protected com.artemis.World mEngine;
@@ -48,8 +50,6 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
 
     private final Vector2 impulse = new Vector2(0, 0);
     private final Vector2 speed = new Vector2(0, 0);
-
-    boolean playerAlive = true;
 
     private int lastPlayerFacingDirection = RIGHT; //by default we always face left
     private int incG = 0;
@@ -69,7 +69,6 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             movePlayer(LEFT);
         }
-
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             movePlayer(RIGHT);
         }
@@ -80,15 +79,9 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
             movePlayer(DOWN);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            // movePlayer(JUMP);
             playerShoot();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            playerShoot();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            System.exit(0);
-        }
+
     }
 
     public void playerShoot() {
@@ -151,15 +144,12 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
                 this.lastPlayerFacingDirection = RIGHT;
                 break;
             case UP:
-                impulse.set(speed.x, 5);
+                TransformComponent transformComponent = transformMapper.get(entity);
+                //impulse.set(speed.x, 5);
+                impulse.set(speed.x, transformComponent.y < 6 ? 5 : speed.y); //limit how high a player can go
                 break;
             case DOWN:
                 impulse.set(speed.x, -5);
-                break;
-            case JUMP:
-                TransformComponent transformComponent = transformMapper.get(entity);
-                //impulse.set(speed.x, transformComponent.y < 6 ? 5 : speed.y);
-                impulse.set(speed.x, 5);
                 break;
         }
         body.applyLinearImpulse(impulse.sub(speed), body.getWorldCenter(), true);
@@ -186,12 +176,9 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
         DiamondComponent diamondComponent = diamondMapper.get(contactEntity);
         if (diamondComponent != null) {
             playerComponent.diamondsCollected += diamondComponent.value;
+            diamondComponent.value = 0;
             mEngine.delete(contactEntity);
-
         }
-
-        if (mainItemComponent.tags.contains("portal_1"))
-            playerComponent.level1Done = true;
 
     }
 
@@ -203,6 +190,12 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
 
         if (mainItemComponent.tags.contains("platform"))
             playerComponent.touchedPlatforms--;
+
+        if (mainItemComponent.tags.contains("portal_1")) {
+            playerComponent.level1Done = true;
+            HyperRunner.soundManager.play("player win 1");
+        }
+
     }
 
     @Override

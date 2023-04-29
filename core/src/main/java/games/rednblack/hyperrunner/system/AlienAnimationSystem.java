@@ -14,6 +14,10 @@ import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateCom
 import games.rednblack.hyperrunner.HyperRunner;
 import games.rednblack.hyperrunner.component.AlienComponent;
 
+/**
+ * alien animation system based on the player animation system
+ * @author Jédregi
+ */
 @All(AlienComponent.class)
 public class AlienAnimationSystem extends IteratingSystem {
 

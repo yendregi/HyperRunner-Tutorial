@@ -2,6 +2,10 @@ package games.rednblack.hyperrunner.component;
 
 import com.artemis.PooledComponent;
 
+/**
+ * the alien component
+ * @author Jédregi
+ */
 public class AlienComponent extends PooledComponent {
 
         public boolean alienTriggered = false;
@@ -14,7 +18,7 @@ public class AlienComponent extends PooledComponent {
                 alienTriggered = false;
                 isDead = false;
                 deathTime = 0;
-                deathPlayTime = 700;
+                deathPlayTime = 425;
         }
 
 }

@@ -20,10 +20,13 @@ import games.rednblack.hyperrunner.component.AlienComponent;
 import games.rednblack.hyperrunner.component.BulletComponent;
 import games.rednblack.hyperrunner.component.PlayerComponent;
 
+/**
+ * bullet script that allows game entities to shoot a projectile
+ * @author Jédregi
+ */
 public class BulletScript extends BasicScript implements PhysicsContact {
 
     protected com.artemis.World mEngine;
-    protected ComponentMapper<PlayerComponent> playerMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
     protected ComponentMapper<BulletComponent> bulletMapper;
@@ -39,7 +42,6 @@ public class BulletScript extends BasicScript implements PhysicsContact {
     private int bulletDirection=-1;
     private int firedByEntity;
 
-
     @Override
     public void init(int item) {
         super.init(item);
@@ -48,8 +50,8 @@ public class BulletScript extends BasicScript implements PhysicsContact {
         animEntity = itemWrapper.getChild("bullet-ani").getEntity();
         mPhysicsBodyComponent = physicsMapper.get(item);
 
+        // probably a bad place to put this, alas, this represents the event every time an alien fires a bullet
         HyperRunner.soundManager.play("fire bullet");
-
 
     }
 

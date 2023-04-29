@@ -1,5 +1,9 @@
 package games.rednblack.hyperrunner.script;
 
+/**
+ * script globals for various static vars
+ * @author Jédregi
+ */
 public class ScriptGlobals {
 
     public static final int LEFT = 0;
@@ -14,6 +18,6 @@ public class ScriptGlobals {
     public static final String bulletElementName = "bullet_3";
     public static final float bulletOffset = 0.49f;
 
-
+    public static final float alienMaxSpeed = 2.1f;
 
 }

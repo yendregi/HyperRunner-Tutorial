@@ -2,6 +2,10 @@ package games.rednblack.hyperrunner.component;
 
 import com.artemis.PooledComponent;
 
+/**
+ * the bullet component
+ * @author Jédregi
+ */
 public class BulletComponent extends PooledComponent {
 
     public boolean touched = false;

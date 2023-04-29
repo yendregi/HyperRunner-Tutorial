@@ -13,6 +13,10 @@ import games.rednblack.editor.renderer.components.sprite.SpriteAnimationComponen
 import games.rednblack.editor.renderer.components.sprite.SpriteAnimationStateComponent;
 import games.rednblack.hyperrunner.component.PlayerComponent;
 
+/**
+ * an animation system for the player
+ * @author fgnm
+ */
 @All(PlayerComponent.class)
 public class PlayerAnimationSystem extends IteratingSystem {
 
@@ -39,16 +43,12 @@ public class PlayerAnimationSystem extends IteratingSystem {
 
         if (Math.abs(body.getLinearVelocity().x) > 0.1f) {
             spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
-
             spriteAnimationComponent.currentAnimation = "run";
             spriteAnimationComponent.fps = Math.max(6, (int)Math.abs(body.getLinearVelocity().x) * 3);
-
             transformComponent.flipX = body.getLinearVelocity().x < 0;
         } else if (playerComponent.touchedPlatforms > 0) {
             spriteAnimationComponent.playMode = Animation.PlayMode.LOOP;
-
             spriteAnimationComponent.currentAnimation = "idle";
-
         }
 
         if (body.getLinearVelocity().y > 0.2f) {

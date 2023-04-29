@@ -23,7 +23,6 @@ import games.rednblack.editor.renderer.utils.ComponentRetriever;
 import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.editor.renderer.ExternalTypesConfiguration;
 
-
 import games.rednblack.hyperrunner.component.AlienComponent;
 import games.rednblack.hyperrunner.component.DiamondComponent;
 import games.rednblack.hyperrunner.component.PlayerComponent;
@@ -39,11 +38,37 @@ import games.rednblack.hyperrunner.system.PlayerAnimationSystem;
 import games.rednblack.h2d.extension.talos.*;
 import games.rednblack.hyperrunner.util.SoundManager;
 
-
-/** AS A STUDENT EXERCISE TRY THE FOLLOWING:
- *  ADD THE ALIEN AND SOME BASIC AI!
- *  ADD AN ADDITIONAL SCREEN TO LOAD ON PLAYER TOUCHING LEVEL EXIT
- *  */
+/**
+ * Student challenge by fgnm@discord
+ * AS A STUDENT EXERCISE TRY THE FOLLOWING:
+ * ADD THE ALIEN AND SOME BASIC AI!
+ * ADD AN ADDITIONAL SCREEN TO LOAD ON PLAYER TOUCHING LEVEL EXIT
+ *
+ * Thus!
+ * This is my adaptation of the initial tutorial and the expansion...
+ *
+ * What does this demo add beyond the basic tutorial ?
+ *
+ *  - talos vfx add-ons (thanks @fgnm for making this possible!!!)
+ *  -- the end portal is a talos vfx effect ... this is portal I made post the talos vfx portal tutorial
+ *  -- the projectiles used, 'bullets', are talos vfx orbs with lighting!
+ *  - "system" add-ons:
+ *  -- aliens and player are dynamically added
+ *  -- aliens have a basic ai
+ *  -- aliens and player both can shoot a 'bullet'
+ *  --- the bullet is an instance of a talos vfx orb effect with lighting!
+ *  -- depending on whom shot the 'bullet', either the player or alien dies
+ *  -- there is a concept of a basic "game loop":
+ *  --- when player "dies" they sees a death screen & can retry the level
+ *  --- when player "wins" (they exit the level) they sees a level complete & can retry the level
+ *  -- there is a basic sound manager created which adds:
+ *  --- ability to load and play "sounds"
+ *  ---- level 1 stage is music I wrote based on the "beads" library
+ *  ---- lazer sound is thanks to "Kenny" media
+ *  ---- other sound effects are my own
+ *
+ * @author fgnm & Jédregi
+ */
 
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -58,7 +83,7 @@ public class HyperRunner extends ApplicationAdapter {
     protected OrthographicCamera mCamera;
     protected static CameraSystem cameraSystem;
 
-    protected boolean debugRendererEnabled = true;
+    protected boolean debugRendererEnabled = false;
     protected Box2DDebugRenderer box2DDebugRenderer;
 
     public static com.artemis.World mEngine;
@@ -75,6 +100,7 @@ public class HyperRunner extends ApplicationAdapter {
 
         //init the sound manager
         soundManager = new SoundManager();
+        // soundManager.mute(); // to sound or not
 
         //setup the talos extension plug'in.
         ExternalTypesConfiguration externalItemTypes = new ExternalTypesConfiguration();
@@ -99,7 +125,7 @@ public class HyperRunner extends ApplicationAdapter {
         config.addSystem(new PlayerAnimationSystem());
         config.addSystem(new AlienAnimationSystem());
 
-        //Tells Runtime to automatically attach a component to entites loaded with a specific TAG.
+        //Tells Runtime to automatically attach a component to entities loaded with a specific TAG.
         config.addTagTransmuter("diamond", DiamondComponent.class);
         config.addTagTransmuter("portal", PortalComponent.class);
 
@@ -119,7 +145,7 @@ public class HyperRunner extends ApplicationAdapter {
         mHUDViewport = new ExtendViewport(768, 576);
         mHUD = new HUD(mAssetManager.get("skin/skin.json"), mAsyncResourceManager.getTextureAtlas("main"), mHUDViewport, mSceneLoader.getBatch());
 
-        PlayerScript playerScript = loadDefaultScence();
+        PlayerScript playerScript = loadDefaultScene();
         mHUD.setPlayerScript(playerScript);
 
         InputAdapter webGlfullscreen = new InputAdapter() {
@@ -138,6 +164,7 @@ public class HyperRunner extends ApplicationAdapter {
                 }
                 return super.touchUp(screenX, screenY, pointer, button);
             }
+
         };
 
         Gdx.input.setInputProcessor(new InputMultiplexer(webGlfullscreen, mHUD));
@@ -147,41 +174,59 @@ public class HyperRunner extends ApplicationAdapter {
         soundManager.playLooping("Stage 1 Music");
     }
 
-    public static PlayerScript loadDefaultScence() {
+    public static PlayerScript loadDefaultScene() {
+
+        //load the main scence
         mSceneLoader.loadScene("MainScene", mViewport);
 
-        ItemWrapper root = new ItemWrapper(mSceneLoader.getRoot(), mEngine);
+        String playerElementName = "player_1";
+        CompositeItemVO playerData = mSceneLoader.loadVoFromLibrary(playerElementName);
+        PlayerScript playerScript = null;
+        //load the player and put em' into the default position
+        if (playerData != null) {
+            //set layer & create unique name and identifier
+            playerData.layerName = "Default";
+            playerData.itemName = "player_1";
+            playerData.itemIdentifier = "player_1";
+            playerData.x = 3.83f;
+            playerData.y = 3.25f;
 
-        ItemWrapper player = root.getChild("player_1");
+            //create the entity & init
+            int player = mSceneLoader.getEntityFactory().createEntity(mSceneLoader.getRoot(), playerData);
+            mSceneLoader.getEntityFactory().initAllChildren(player, playerData);
 
-        ComponentRetriever.create(player.getChild("player-anim").getEntity(), PlayerComponent.class, mEngine); //why ?
+            ItemWrapper root = new ItemWrapper(mSceneLoader.getRoot(), mEngine);
+            ItemWrapper playerWrapper = root.getChild("player_1");
+            ComponentRetriever.create(playerWrapper.getChild("player-anim").getEntity(), PlayerComponent.class, mEngine);
+            playerScript = new PlayerScript();
+            playerWrapper.addScript(playerScript);
+            cameraSystem.setFocus(playerWrapper.getEntity());
 
-        PlayerScript playerScript = new PlayerScript();
-        player.addScript(playerScript);
-        cameraSystem.setFocus(player.getEntity());
+            //System.out.println("player=("+player+") player.entity("+playerWrapper.getEntity()+") player.getChild(\"player-anim\").getEntity()==("+playerWrapper.getChild("player-anim").getEntity()+")");
 
-        //dynamically create some aliens:
-        createAliens(player.getEntity());
+            //dynamically create some aliens:
+            createAliens(playerWrapper.getEntity());
+
+        }
 
         mSceneLoader.addComponentByTagName("diamond", DiamondComponent.class); //do these adds matter?
         mSceneLoader.addComponentByTagName("portal", PortalComponent.class);
-
         return playerScript;
     }
 
     private static void createAliens(int playerEntity) {
-        float alienLocations[][] = {{12.88f,5.61f},{9.68f,1.80f},{19.52f,4.75f},{26.12f,2.10f}, {29.16f,4.90f}}; //{{12.88f,5.61f}};
+        float[][] alienLocations = {{12.88f,5.61f},{9.68f,1.80f},{19.52f,4.75f},{26.12f,2.10f}, {29.16f,4.90f}};
 
         for(int i=0; i<alienLocations.length; i++) {
-            //load a bullet from the library
+            //load a alien from the library
             String alienElementName = "alien_1";
             CompositeItemVO alienData = mSceneLoader.loadVoFromLibrary(alienElementName);
             if (alienData != null) {
+
                 //set layer & create unique name and identifier
                 alienData.layerName = "Default";
                 alienData.itemName = "alien_" + i;
                 alienData.itemIdentifier = "alien_id_" + i;
-
                 alienData.x = alienLocations[i][0];
                 alienData.y = alienLocations[i][1];
 
@@ -189,17 +234,16 @@ public class HyperRunner extends ApplicationAdapter {
                 int alien = mSceneLoader.getEntityFactory().createEntity(mSceneLoader.getRoot(), alienData);
                 mSceneLoader.getEntityFactory().initAllChildren(alien, alienData);
 
-                //create the alien script and set some required elements
+                //create the alien script and setup the followed player entity
                 AlienScript alienScriptScript = new AlienScript();
                 alienScriptScript.setPlayerEntity(playerEntity);
 
                 //create the root to get the child item
                 ItemWrapper root = new ItemWrapper(mSceneLoader.getRoot(), mEngine);
-
                 ItemWrapper alienItem = root.getChild(alienData.itemIdentifier);
                 ComponentRetriever.create(alienItem.getChild("alien-ani").getEntity(), AlienComponent.class, mEngine);
 
-                System.out.println("alien=("+alien+") alienItem.entity("+alienItem.getEntity()+") alienItem.getChild(\"alien-ani\").getEntity()==("+alienItem.getChild("alien-ani").getEntity()+")");
+                //System.out.println("alien=("+alien+") alienItem.entity("+alienItem.getEntity()+") alienItem.getChild(\"alien-ani\").getEntity()==("+alienItem.getChild("alien-ani").getEntity()+")");
 
                 alienItem.addScript(alienScriptScript);
 
@@ -223,6 +267,7 @@ public class HyperRunner extends ApplicationAdapter {
 
         mHUD.act(Gdx.graphics.getDeltaTime());
         mHUD.draw();
+
     }
 
     @Override

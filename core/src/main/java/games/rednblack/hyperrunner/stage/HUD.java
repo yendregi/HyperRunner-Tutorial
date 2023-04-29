@@ -4,13 +4,14 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.LEFT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.JUMP;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -20,6 +21,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import games.rednblack.hyperrunner.HyperRunner;
 import games.rednblack.hyperrunner.script.PlayerScript;
 
+/**
+ * The user ui "hud stage" - controls various aspects of the simple GUI for this game
+ * @author fgnm & Jédregi
+ */
 public class HUD extends Stage {
 
     private Label mDiamondsLabel;
@@ -37,6 +42,8 @@ public class HUD extends Stage {
     private boolean level_1_trigger = false;
     private Label tryAgainLabel;
 
+    private boolean screenGUIEnabled = false; // remove button ui for the moment .. this could be a switch to enable or disable
+
     public HUD(Skin skin, TextureAtlas atlas, Viewport viewport, Batch batch) {
         super(viewport, batch);
 
@@ -48,11 +55,10 @@ public class HUD extends Stage {
         Image diamond = new Image(atlas.findRegion("GemCounter"));
         gemCounter.add(diamond);
 
-
         tryAgainLabel = new Label("-TRY AGAIN-", skin);
         tryAgainLabel.setPosition(325,200);
         tryAgainLabel.setVisible(false);
-        tryAgainLabel.addListener(new ClickListener(){
+        tryAgainLabel.addListener(new ClickListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 return super.touchDown(event, x, y, pointer, button);
@@ -62,7 +68,15 @@ public class HUD extends Stage {
                 super.touchUp(event, x, y, pointer, button);
                 playerRetry = true;
             }
+// shouldn't this work ? https://stackoverflow.com/questions/23174722/mouse-hover-libgdx
+/*
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, int button){
+
+            }
+*/
         });
+
 
         mDiamondsLabel = new Label("Diamonds", skin);
         gemCounter.add(mDiamondsLabel);
@@ -71,7 +85,7 @@ public class HUD extends Stage {
         root.row();
 
         ImageButton leftButton = new ImageButton(skin, "left");
-        leftButton.setVisible(false);
+        leftButton.setVisible(screenGUIEnabled);
         leftButton.addListener(new ClickListener(){
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -88,7 +102,7 @@ public class HUD extends Stage {
         root.add(leftButton).left().bottom(); //on screen left
 
         ImageButton rightButton = new ImageButton(skin, "right");
-        rightButton.setVisible(false);
+        rightButton.setVisible(screenGUIEnabled);
         rightButton.addListener(new ClickListener(){
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -105,7 +119,7 @@ public class HUD extends Stage {
         root.add(rightButton).left().bottom().padLeft(20); //on screen right
 
         ImageButton upButton = new ImageButton(skin, "up");
-        upButton.setVisible(false);
+        upButton.setVisible(screenGUIEnabled);
         upButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -128,6 +142,7 @@ public class HUD extends Stage {
 
         if (leftClicked)
             mPlayerScript.movePlayer(LEFT);
+
         if (rightClicked)
             mPlayerScript.movePlayer(RIGHT);
 
@@ -136,19 +151,21 @@ public class HUD extends Stage {
             mDiamondsLabel.setText("x" + diamonds);
         }
 
+        //check if we need to load a level then do so -
         if (playerRetry) {
             playerRetry = false;
             tryAgainLabel.setVisible(false);
             //load the main scene again and recreate the level
-            this.setPlayerScript(HyperRunner.loadDefaultScence());
-            System.out.println("player retry");
+            this.setPlayerScript(HyperRunner.loadDefaultScene());
+            playerDeathTrigger = false; //do not forget to reset all triggers!
+            level_1_trigger = false;
         }
+
 
         if(mPlayerScript.getPlayerComponent() != null && mPlayerScript.getPlayerComponent().isDead) {
             if(!playerDeathTrigger) {
                 playerDeathTrigger = true;
                 HyperRunner.mSceneLoader.loadScene("PlayerDies", HyperRunner.mViewport);
-                System.out.println("player is dead");
                 HyperRunner.soundManager.play("player dies");
                 tryAgainLabel.setVisible(true);
             }
@@ -158,19 +175,20 @@ public class HUD extends Stage {
             if(!level_1_trigger) {
                 level_1_trigger = true;
                 HyperRunner.mSceneLoader.loadScene("LevelComplete", HyperRunner.mViewport);
-                System.out.println("level 1 done");
                 tryAgainLabel.setVisible(true);
             }
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            System.exit(0);
+        }
+
     }
+
 }
 
 
 /*
-
- // mSceneLoader.loadScene("LevelComplete", mViewport);
- // mSceneLoader.loadScene("PlayerDies", mViewport);
 
  NOTES from  fgnm about loading scenes
 Question: Creating a class that extends a stage and there manipulates the scenes ?

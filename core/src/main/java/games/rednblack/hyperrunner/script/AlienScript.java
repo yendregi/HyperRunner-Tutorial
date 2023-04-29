@@ -5,6 +5,7 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.LEFT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletElementName;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletOffset;
+import static games.rednblack.hyperrunner.script.ScriptGlobals.alienMaxSpeed;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.math.Vector2;
@@ -12,9 +13,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 
-import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.components.MainItemComponent;
-import games.rednblack.editor.renderer.components.ParentNodeComponent;
 import games.rednblack.editor.renderer.components.ScriptComponent;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
@@ -26,29 +25,26 @@ import games.rednblack.hyperrunner.HyperRunner;
 import games.rednblack.hyperrunner.component.AlienComponent;
 import games.rednblack.hyperrunner.component.BulletComponent;
 import games.rednblack.hyperrunner.component.PlayerComponent;
-import games.rednblack.hyperrunner.util.SoundManager;
 
-
+/**
+ * alien script that give aliens a basic "ai", script based on the initial player script
+ * @author Jédregi
+ */
 public class AlienScript extends BasicScript implements PhysicsContact {
 
     protected com.artemis.World mEngine;
-    protected ComponentMapper<ParentNodeComponent> parentMapper;
     protected ComponentMapper<PhysicsBodyComponent> physicsMapper;
     protected ComponentMapper<MainItemComponent> mainItemMapper;
-    protected ComponentMapper<BulletComponent> bulletMapper;
     protected ComponentMapper<AlienComponent> alienMapper;
     protected ComponentMapper<ScriptComponent> scriptMapper;
-    protected ComponentMapper<PlayerComponent> playerMapper;
 
     private int animEntity;
 
     private PhysicsBodyComponent mPhysicsBodyComponent;
 
-    private final float maxSpeed = 2.1f;
     private float yDamp = 1.0f;
 
     private int playerEntity;
-    private int alienDirection;
 
     private int incG = 0;
 
@@ -56,7 +52,6 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     public void init(int item) {
         super.init(item);
 
-        System.out.println("script init with " + item);
         ItemWrapper itemWrapper = new ItemWrapper(item, mEngine);
         animEntity = itemWrapper.getChild("alien-ani").getEntity();
 
@@ -98,15 +93,15 @@ public class AlienScript extends BasicScript implements PhysicsContact {
 
         if(alienComponent.alienTriggered) {
             Vector2 alienV = alienBody.getLinearVelocity();
-            if( Math.abs(alienV.x) < maxSpeed && Math.abs(alienV.y) < maxSpeed/2) {
+            if( Math.abs(alienV.x) < alienMaxSpeed && Math.abs(alienV.y) < alienMaxSpeed/2) {
                 if(lastXcc > 10) {
                     yDamp = 1.0f;
                     lastXcc = 0;
                 }
-                float xS = ((playBody_c.x-alienBody_c.x) > 0 ? maxSpeed : -1*maxSpeed);
-                float yS = ((playBody_c.y-alienBody_c.y) > 0 ? maxSpeed : -1*maxSpeed) * yDamp;
+                float xD = ((playBody_c.x-alienBody_c.x) > 0 ? alienMaxSpeed : -1*alienMaxSpeed);
+                float yD = ((playBody_c.y-alienBody_c.y) > 0 ? alienMaxSpeed : -1*alienMaxSpeed) * yDamp;
 
-                alienBody.applyLinearImpulse(new Vector2(xS,yS), alienBody.getWorldCenter(), true);
+                alienBody.applyLinearImpulse(new Vector2(xD,yD), alienBody.getWorldCenter(), true);
             }
             if(Math.random()<0.005)
                 alienShoot(((playBody_c.x-alienBody_c.x) > 0 ? RIGHT : LEFT));
@@ -166,10 +161,6 @@ public class AlienScript extends BasicScript implements PhysicsContact {
         return (float)Math.sqrt((p2.x-p1.x)*(p2.x-p1.x)+(p2.y-p1.y)*(p2.y-p1.y));
     }
 
-    public BulletComponent getBulletComponent() {
-        return bulletMapper.get(animEntity);
-    }
-
     @Override
     public void dispose() {
 
@@ -190,7 +181,6 @@ public class AlienScript extends BasicScript implements PhysicsContact {
 
         MainItemComponent mainItemComponent = mainItemMapper.get(contactEntity);
 
-
         if (mainItemComponent.tags.contains("platform"))
             yDamp = 1.0f;
 
@@ -207,6 +197,7 @@ public class AlienScript extends BasicScript implements PhysicsContact {
             ScriptComponent playerScript = scriptMapper.get(contactEntity);
             PlayerComponent playerComponent = ((PlayerScript)playerScript.scripts.get(0)).getPlayerComponent();
             playerComponent.isDead = true;
+
         }
 
     }
@@ -219,23 +210,10 @@ public class AlienScript extends BasicScript implements PhysicsContact {
     @Override
     public void postSolve(int contactEntity, Fixture contactFixture, Fixture ownFixture, Contact contact) {
 
-        //if the contact enemy is the player, set to indicate player is dead
-/*
-        MainItemComponent mainItemComponent = mainItemMapper.get(contactEntity);
-        //BulletComponent bulletComponent = bulletMapper.get(animEntity);
-        if (mainItemComponent.tags.contains("platform"))
-            mEngine.delete(this.entity); // delete this bullet on touch
-*/
-    }
-
-    public void setalienDirection(int direction){
-        this.alienDirection = direction;
     }
 
     public void setPlayerEntity(int playerEntity) {
         this.playerEntity = playerEntity;
     }
 
-    public void setSoundManager(SoundManager soundManager) {
-    }
 }

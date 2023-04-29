@@ -2,6 +2,11 @@ package games.rednblack.hyperrunner.component;
 
 import com.artemis.PooledComponent;
 
+/**
+ * the player component
+ * @author fgnm
+ */
+
 public class PlayerComponent extends PooledComponent {
 
     public int touchedPlatforms = 0;
