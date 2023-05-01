@@ -1,8 +1,8 @@
 
 skin.png
-size: 512,512
+size: 512, 512
 format: RGBA8888
-filter: Linear,Linear
+filter: Linear, Linear
 repeat: none
 joystix monospace
   rotate: false
@@ -13,22 +13,29 @@ joystix monospace
   index: -1
 left
   rotate: false
-  xy: 1, 327
+  xy: 1, 138
   size: 144, 144
   orig: 144, 144
   offset: 0, 0
   index: -1
 right
   rotate: false
-  xy: 1, 181
+  xy: 197, 327
   size: 144, 144
   orig: 144, 144
   offset: 0, 0
   index: -1
 up
   rotate: false
-  xy: 147, 327
+  xy: 343, 327
   size: 132, 144
   orig: 132, 144
+  offset: 0, 0
+  index: -1
+bulletfire
+  rotate: false
+  xy: 1, 284
+  size: 194, 187
+  orig: 194, 187
   offset: 0, 0
   index: -1

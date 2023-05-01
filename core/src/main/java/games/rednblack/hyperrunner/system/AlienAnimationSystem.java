@@ -1,5 +1,7 @@
 package games.rednblack.hyperrunner.system;
 
+import static games.rednblack.hyperrunner.util.SoundManager.alienDeath;
+
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
@@ -49,7 +51,7 @@ public class AlienAnimationSystem extends IteratingSystem {
             //we wait a couple millis then delete the alien
             if(alienComponent.deathTime==0){
                 alienComponent.deathTime = System.currentTimeMillis();
-                HyperRunner.soundManager.play("alien death");
+                HyperRunner.soundManager.play(alienDeath); //another place that is precarious to place a sound in
             }else if(alienComponent.deathTime > 0) {
                 if((System.currentTimeMillis() - alienComponent.deathTime) > alienComponent.deathPlayTime ) {
                     HyperRunner.mEngine.delete(nodeComponent.parentEntity);

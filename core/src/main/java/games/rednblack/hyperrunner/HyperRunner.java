@@ -1,5 +1,7 @@
 package games.rednblack.hyperrunner;
 
+import static games.rednblack.hyperrunner.util.SoundManager.stage_1_music;
+
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -14,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
+
 import games.rednblack.editor.renderer.SceneConfiguration;
 import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.data.CompositeItemVO;
@@ -24,18 +28,24 @@ import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.editor.renderer.ExternalTypesConfiguration;
 
 import games.rednblack.hyperrunner.component.AlienComponent;
+import games.rednblack.hyperrunner.component.ChainAnchorComponent;
+import games.rednblack.hyperrunner.component.ChainLinkComponent;
 import games.rednblack.hyperrunner.component.DiamondComponent;
 import games.rednblack.hyperrunner.component.PlayerComponent;
 import games.rednblack.hyperrunner.component.BulletComponent;
 import games.rednblack.hyperrunner.component.PortalComponent;
 import games.rednblack.hyperrunner.script.AlienScript;
+import games.rednblack.hyperrunner.script.ChainLinkScript;
 import games.rednblack.hyperrunner.script.PlayerScript;
 import games.rednblack.hyperrunner.stage.HUD;
 import games.rednblack.hyperrunner.system.AlienAnimationSystem;
 import games.rednblack.hyperrunner.system.CameraSystem;
 import games.rednblack.hyperrunner.system.PlayerAnimationSystem;
 
-import games.rednblack.h2d.extension.talos.*;
+//import games.rednblack.h2d.extension.talos.*;
+import games.rednblack.h2d.extension.talos.TalosItemType;
+
+import games.rednblack.hyperrunner.util.LoadUtil;
 import games.rednblack.hyperrunner.util.SoundManager;
 
 /**
@@ -68,34 +78,36 @@ import games.rednblack.hyperrunner.util.SoundManager;
  *  ---- other sound effects are my own
  *
  * @author fgnm & Jédregi
- */
-
-
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+ *
+{@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class HyperRunner extends ApplicationAdapter {
 
-    protected AssetManager mAssetManager;
+    // globals for this game for use within other classes
+    public static AssetManager mAssetManager;
 
     public static SceneLoader mSceneLoader;
-    protected AsyncResourceManager mAsyncResourceManager;
+    public static AsyncResourceManager mAsyncResourceManager;
 
     public static Viewport mViewport;
-    protected OrthographicCamera mCamera;
-    protected static CameraSystem cameraSystem;
+    public static OrthographicCamera mCamera;
+    public static CameraSystem cameraSystem;
 
-    protected boolean debugRendererEnabled = false;
+    protected boolean debugRendererEnabled = false; //change this to see the box2d debug rendering
     protected Box2DDebugRenderer box2DDebugRenderer;
 
     public static com.artemis.World mEngine;
     public static SoundManager soundManager;
-
-
 
     protected HUD mHUD;
     protected ExtendViewport mHUDViewport;
 
     @Override
     public void create() {
+
+        //debug rendering if we need it
+        box2DDebugRenderer = new Box2DDebugRenderer();
+
+        //init asset manger
         mAssetManager = new AssetManager();
 
         //init the sound manager
@@ -106,6 +118,7 @@ public class HyperRunner extends ApplicationAdapter {
         ExternalTypesConfiguration externalItemTypes = new ExternalTypesConfiguration();
         externalItemTypes.addExternalItemType(new TalosItemType());
 
+        //setup asset manager's resource manager & load the project
         mAssetManager.setLoader(AsyncResourceManager.class, new ResourceManagerLoader(externalItemTypes, mAssetManager.getFileHandleResolver()));
         mAssetManager.load("project.dt", AsyncResourceManager.class);
         mAssetManager.load("skin/skin.json", Skin.class);
@@ -114,7 +127,7 @@ public class HyperRunner extends ApplicationAdapter {
         mAsyncResourceManager = mAssetManager.get("project.dt", AsyncResourceManager.class);
         SceneConfiguration config = new SceneConfiguration();
 
-        //add the talos extension plug'in.
+        //add the talos extension plug'in
         config.setExternalItemTypes(externalItemTypes);
         config.setResourceRetriever(mAsyncResourceManager);
 
@@ -122,32 +135,42 @@ public class HyperRunner extends ApplicationAdapter {
         cameraSystem = new CameraSystem(5, 40, 5, 20);
         config.addSystem(cameraSystem);
 
+        //add the animation systems
         config.addSystem(new PlayerAnimationSystem());
         config.addSystem(new AlienAnimationSystem());
 
-        //Tells Runtime to automatically attach a component to entities loaded with a specific TAG.
+        //tells Runtime to automatically attach a component to entities loaded with a specific TAG.
         config.addTagTransmuter("diamond", DiamondComponent.class);
         config.addTagTransmuter("portal", PortalComponent.class);
 
+        //core setup - scene loader & the physics engine
         mSceneLoader = new SceneLoader(config);
         mEngine = mSceneLoader.getEngine();
 
+        // required mappers for own components :
         ComponentRetriever.addMapper(PlayerComponent.class);
         ComponentRetriever.addMapper(DiamondComponent.class);
         ComponentRetriever.addMapper(BulletComponent.class);
         ComponentRetriever.addMapper(AlienComponent.class);
         ComponentRetriever.addMapper(PortalComponent.class);
+        ComponentRetriever.addMapper(ChainAnchorComponent.class);
+        ComponentRetriever.addMapper(ChainLinkComponent.class);
 
+        //setup the camera & view port
         mCamera = new OrthographicCamera();
-
         mViewport = new ExtendViewport(15, 8, mCamera);
 
         mHUDViewport = new ExtendViewport(768, 576);
         mHUD = new HUD(mAssetManager.get("skin/skin.json"), mAsyncResourceManager.getTextureAtlas("main"), mHUDViewport, mSceneLoader.getBatch());
 
-        PlayerScript playerScript = loadDefaultScene();
+        //load the default scene and setup player script
+
+        PlayerScript playerScript = LoadUtil.loadDefaultScene();
         mHUD.setPlayerScript(playerScript);
 
+        soundManager.playLooping(stage_1_music);
+
+        //init the web gl bit
         InputAdapter webGlfullscreen = new InputAdapter() {
             @Override
             public boolean keyUp (int keycode) {
@@ -168,90 +191,6 @@ public class HyperRunner extends ApplicationAdapter {
         };
 
         Gdx.input.setInputProcessor(new InputMultiplexer(webGlfullscreen, mHUD));
-
-        box2DDebugRenderer = new Box2DDebugRenderer();
-
-        soundManager.playLooping("Stage 1 Music");
-    }
-
-    public static PlayerScript loadDefaultScene() {
-
-        //load the main scence
-        mSceneLoader.loadScene("MainScene", mViewport);
-
-        String playerElementName = "player_1";
-        CompositeItemVO playerData = mSceneLoader.loadVoFromLibrary(playerElementName);
-        PlayerScript playerScript = null;
-        //load the player and put em' into the default position
-        if (playerData != null) {
-            //set layer & create unique name and identifier
-            playerData.layerName = "Default";
-            playerData.itemName = "player_1";
-            playerData.itemIdentifier = "player_1";
-            playerData.x = 3.83f;
-            playerData.y = 3.25f;
-
-            //create the entity & init
-            int player = mSceneLoader.getEntityFactory().createEntity(mSceneLoader.getRoot(), playerData);
-            mSceneLoader.getEntityFactory().initAllChildren(player, playerData);
-
-            ItemWrapper root = new ItemWrapper(mSceneLoader.getRoot(), mEngine);
-            ItemWrapper playerWrapper = root.getChild("player_1");
-            ComponentRetriever.create(playerWrapper.getChild("player-anim").getEntity(), PlayerComponent.class, mEngine);
-            playerScript = new PlayerScript();
-            playerWrapper.addScript(playerScript);
-            cameraSystem.setFocus(playerWrapper.getEntity());
-
-            //System.out.println("player=("+player+") player.entity("+playerWrapper.getEntity()+") player.getChild(\"player-anim\").getEntity()==("+playerWrapper.getChild("player-anim").getEntity()+")");
-
-            //dynamically create some aliens:
-            createAliens(playerWrapper.getEntity());
-
-        }
-
-        mSceneLoader.addComponentByTagName("diamond", DiamondComponent.class); //do these adds matter?
-        mSceneLoader.addComponentByTagName("portal", PortalComponent.class);
-        return playerScript;
-    }
-
-    private static void createAliens(int playerEntity) {
-        float[][] alienLocations = {{12.88f,5.61f},{9.68f,1.80f},{19.52f,4.75f},{26.12f,2.10f}, {29.16f,4.90f}};
-
-        for(int i=0; i<alienLocations.length; i++) {
-            //load a alien from the library
-            String alienElementName = "alien_1";
-            CompositeItemVO alienData = mSceneLoader.loadVoFromLibrary(alienElementName);
-            if (alienData != null) {
-
-                //set layer & create unique name and identifier
-                alienData.layerName = "Default";
-                alienData.itemName = "alien_" + i;
-                alienData.itemIdentifier = "alien_id_" + i;
-                alienData.x = alienLocations[i][0];
-                alienData.y = alienLocations[i][1];
-
-                //create the entity & init
-                int alien = mSceneLoader.getEntityFactory().createEntity(mSceneLoader.getRoot(), alienData);
-                mSceneLoader.getEntityFactory().initAllChildren(alien, alienData);
-
-                //create the alien script and setup the followed player entity
-                AlienScript alienScriptScript = new AlienScript();
-                alienScriptScript.setPlayerEntity(playerEntity);
-
-                //create the root to get the child item
-                ItemWrapper root = new ItemWrapper(mSceneLoader.getRoot(), mEngine);
-                ItemWrapper alienItem = root.getChild(alienData.itemIdentifier);
-                ComponentRetriever.create(alienItem.getChild("alien-ani").getEntity(), AlienComponent.class, mEngine);
-
-                //System.out.println("alien=("+alien+") alienItem.entity("+alienItem.getEntity()+") alienItem.getChild(\"alien-ani\").getEntity()==("+alienItem.getChild("alien-ani").getEntity()+")");
-
-                alienItem.addScript(alienScriptScript);
-
-            }else{
-                System.err.println("No '"+alienElementName+"' composite found in library!");
-            }
-        }
-
     }
 
     @Override
@@ -285,26 +224,3 @@ public class HyperRunner extends ApplicationAdapter {
         mSceneLoader.dispose();
     }
 }
-
-/*
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-            //mSceneLoader.dispose();
-            OrthographicCamera mCamera = new OrthographicCamera();
-            ExtendViewport mViewport = new ExtendViewport(15, 8, mCamera);
-            mSceneLoader.loadScene("WinScene", mViewport);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            //mSceneLoader.dispose();
-            OrthographicCamera mCamera = new OrthographicCamera();
-            ExtendViewport mViewport = new ExtendViewport(15, 8, mCamera);
-            mSceneLoader.loadScene("DeadScene", mViewport);
-        }
- */
-
-/*
-
--notes on the collisions to create chains
-
-
-
- */

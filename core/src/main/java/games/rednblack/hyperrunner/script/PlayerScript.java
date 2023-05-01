@@ -7,6 +7,7 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.UP;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.DOWN;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletElementName;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletOffset;
+import static games.rednblack.hyperrunner.util.SoundManager.playerWin;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.Gdx;
@@ -15,6 +16,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.joints.RopeJointDef;
 
 import games.rednblack.editor.renderer.components.DimensionsComponent;
 import games.rednblack.editor.renderer.components.MainItemComponent;
@@ -54,6 +57,12 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
     private int lastPlayerFacingDirection = RIGHT; //by default we always face left
     private int incG = 0;
 
+
+    public RopeJointDef ropeJointDef = null;
+    public Joint ropeJoint = null; //the join we attach the player to a rope
+    public boolean playerAttached = false;
+    public boolean unAttachPlayer = false;
+
     @Override
     public void init(int item) {
         super.init(item);
@@ -80,6 +89,9 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             playerShoot();
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Z) ) {
+            unAttachPlayer = true;
         }
 
     }
@@ -140,6 +152,9 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
     public void movePlayer(int direction) {
         Body body = mPhysicsBodyComponent.body;
 
+        if(body == null)
+            return;
+
         speed.set(body.getLinearVelocity());
 
         switch (direction) {
@@ -181,6 +196,10 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
         if (mainItemComponent.tags.contains("platform"))
             playerComponent.touchedPlatforms++;
 
+        // attach the player to the "rope thing" -- there is a curious thing to figure out - they player "bounces" with the rope (this expected) but the animation quality here when the simulation is going on drop off sharply
+        if (mainItemComponent.tags.contains("LinkWithGravity"))
+            attachPlayerToRope(contactEntity);
+
         DiamondComponent diamondComponent = diamondMapper.get(contactEntity);
         if (diamondComponent != null) {
             playerComponent.diamondsCollected += diamondComponent.value;
@@ -188,6 +207,18 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
             mEngine.delete(contactEntity);
         }
 
+    }
+
+    private void attachPlayerToRope(int contactEntity) {
+        if(ropeJointDef == null) {
+            ropeJointDef = new RopeJointDef();
+            ropeJointDef.bodyA = physicsMapper.get(contactEntity).body;
+            ropeJointDef.bodyB = mPhysicsBodyComponent.body; //player body
+            ropeJointDef.collideConnected = true;
+            ropeJointDef.localAnchorA.set(0, -0.25f);
+            ropeJointDef.localAnchorB.set(0.3f, 1.1f);
+            // we create the joint, then add it right after the collision is sorted out - this is a box2d thing that we need observe, can't do "dynamic" actions while actions are being sorted out
+        }
     }
 
     @Override
@@ -201,7 +232,7 @@ public class PlayerScript extends BasicScript implements PhysicsContact {
 
         if (mainItemComponent.tags.contains("portal_1")) {
             playerComponent.level1Done = true;
-            HyperRunner.soundManager.play("player win 1");
+            HyperRunner.soundManager.play(playerWin);
         }
 
     }

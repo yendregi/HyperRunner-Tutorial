@@ -2,6 +2,8 @@ package games.rednblack.hyperrunner.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.tests.box2d.CollisionFiltering;
+
 import games.rednblack.hyperrunner.HyperRunner;
 
 /** Launches the desktop (LWJGL3) application. */

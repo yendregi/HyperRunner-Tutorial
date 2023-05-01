@@ -14,6 +14,14 @@ public class SoundManager {
 
     HashMap<String,Sound> soundsHash;
     private boolean mute = false;
+
+    // sound stuff
+    public static final String bulletSound = "fire bullet";
+    public static final String playerWin = "player win 1";
+    public static final String playerDies = "player dies";
+    public static final String stage_1_music = "Stage 1 Music";
+    public static final String alienDeath = "alien death";
+
     public SoundManager() {
         init();
     }
@@ -23,11 +31,11 @@ public class SoundManager {
 
         soundsHash = new HashMap<String,Sound>();
         String sounds[][] = {
-                                {"Stage 1 Music","audio/Sample game music 1.ogg"}, //could be loaded as "Music", for the moment we just use the "Sound" class for everything
-                                {"player dies","audio/Player death.ogg"},
-                                {"fire bullet","audio/fire_bullet.ogg"},
-                                {"alien death","audio/alien_death.ogg"},
-                                {"player win 1","audio/Woohoo.ogg"}
+                                {stage_1_music,"audio/Sample game music 1.ogg"}, //could be loaded as "Music", for the moment we just use the "Sound" class for everything
+                                {playerDies,"audio/Player death.ogg"},
+                                {bulletSound,"audio/fire_bullet.ogg"},
+                                {alienDeath,"audio/alien_death.ogg"},
+                                {playerWin,"audio/Woohoo.ogg"}
                             };
         for(int i=0;i<sounds.length;i++){
             soundsHash.put(sounds[i][0], Gdx.audio.newSound(Gdx.files.internal(sounds[i][1])));

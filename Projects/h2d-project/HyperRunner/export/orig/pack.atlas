@@ -3,7 +3,7 @@ pack.png
 Diamond
 	bounds: 1921, 745, 96, 96
 GemCounter
-	bounds: 1991, 1870, 32, 32
+	bounds: 1991, 1805, 32, 32
 alien
 	index: 0
 	bounds: 1255, 865, 192, 192
@@ -33,13 +33,15 @@ alien
 	bounds: 1837, 37, 192, 192
 animated_bullet_1
 	index: 0
-	bounds: 1991, 2012, 55, 33
+	bounds: 1991, 1947, 55, 33
 animated_bullet_1
 	index: 1
-	bounds: 1991, 1977, 55, 33
+	bounds: 1991, 1912, 55, 33
 animated_bullet_1
 	index: 2
-	bounds: 1991, 1942, 55, 33
+	bounds: 1991, 1877, 55, 33
+chainLink
+	bounds: 1991, 1982, 46, 63
 circle
 	bounds: 677, 11, 80, 80
 dead
@@ -86,7 +88,7 @@ player
 	index: 14
 	bounds: 1449, 715, 144, 144
 vfx_particle
-	bounds: 1991, 1904, 36, 36
+	bounds: 1991, 1839, 36, 36
 wall
 	bounds: 1449, 329, 576, 384
 wall-light-1
@@ -96,7 +98,7 @@ wall-light-2
 walll-border
 	bounds: 1255, 1059, 192, 384
 white-pixel
-	bounds: 2029, 1939, 1, 1
+	bounds: 2039, 2044, 1, 1
 
 pack2.png
 	size: 2048, 1024
@@ -133,6 +135,8 @@ alien
 alien
 	index: 9
 	bounds: 583, 777, 192, 192
+chainAnchor
+	bounds: 1895, 871, 91, 98
 platform-tile-1
 	bounds: 1, 1, 192, 192
 platform-tile-2

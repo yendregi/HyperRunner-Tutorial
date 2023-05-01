@@ -4,6 +4,7 @@ import static games.rednblack.hyperrunner.script.ScriptGlobals.ALIEN;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.PLAYER;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.bulletMaxSpeed;
+import static games.rednblack.hyperrunner.util.SoundManager.bulletSound;
 
 import com.artemis.ComponentMapper;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -50,7 +51,7 @@ public class BulletScript extends BasicScript implements PhysicsContact {
         mPhysicsBodyComponent = physicsMapper.get(item);
 
         // probably a bad place to put this, alas, this represents the event : anyone whom fires a bullet
-        HyperRunner.soundManager.play("fire bullet");
+        HyperRunner.soundManager.play(bulletSound);
 
     }
 

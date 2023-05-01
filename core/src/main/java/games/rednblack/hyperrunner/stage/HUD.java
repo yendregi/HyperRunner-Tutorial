@@ -2,7 +2,8 @@ package games.rednblack.hyperrunner.stage;
 
 import static games.rednblack.hyperrunner.script.ScriptGlobals.LEFT;
 import static games.rednblack.hyperrunner.script.ScriptGlobals.RIGHT;
-import static games.rednblack.hyperrunner.script.ScriptGlobals.JUMP;
+import static games.rednblack.hyperrunner.script.ScriptGlobals.UP;
+import static games.rednblack.hyperrunner.util.SoundManager.playerDies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import games.rednblack.hyperrunner.HyperRunner;
 import games.rednblack.hyperrunner.script.PlayerScript;
+import games.rednblack.hyperrunner.util.LoadUtil;
 
 /**
  * The user ui "hud stage" - controls various aspects of the simple GUI for this game
@@ -27,22 +29,32 @@ import games.rednblack.hyperrunner.script.PlayerScript;
  */
 public class HUD extends Stage {
 
-    private Label mDiamondsLabel;
-
+    // the main player script
     private PlayerScript mPlayerScript;
 
-    private boolean leftClicked = false;
-    private boolean rightClicked = false;
-
+    // player states
     private int diamonds = -1;
-
+    // & stuff to keep track off
     private boolean playerRetry = false;
-
     private boolean playerDeathTrigger = false;
     private boolean level_1_trigger = false;
-    private Label tryAgainLabel;
 
-    private boolean screenGUIEnabled = false; // remove button ui for the moment .. this could be a switch to enable or disable
+    // labels we care about
+    private final Label mDiamondsLabel;
+    private final Label tryAgainLabel;
+    private final Label hudIcons;
+
+    private boolean screenGUIEnabled = false;  //add or remove ui based on player choice (work in progress at the moment)
+
+    //hud stuff
+    private boolean leftClicked = false;
+    private boolean rightClicked = false;
+   // private boolean fireClicked = false;
+
+    private ImageButton leftButton = null;
+    private ImageButton upButton = null;
+    private ImageButton rightButton = null;
+    //private ImageButton fireButton = null;
 
     public HUD(Skin skin, TextureAtlas atlas, Viewport viewport, Batch batch) {
         super(viewport, batch);
@@ -55,8 +67,24 @@ public class HUD extends Stage {
         Image diamond = new Image(atlas.findRegion("GemCounter"));
         gemCounter.add(diamond);
 
+        hudIcons = new Label("iHUD "+(screenGUIEnabled?"On":"Off"), skin);
+        hudIcons.setPosition(655,550); //this only works on "fixed screen resolution"
+        hudIcons.setVisible(true);
+        hudIcons.addListener(new ClickListener() {
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                super.touchUp(event, x, y, pointer, button);
+                screenGUIEnabled = !screenGUIEnabled;
+                hudIcons.setText("iHUD "+(screenGUIEnabled?"On":"Off"));
+                leftButton.setVisible(screenGUIEnabled);
+                rightButton.setVisible(screenGUIEnabled);
+                upButton.setVisible(screenGUIEnabled);
+
+            }
+        });
+
         tryAgainLabel = new Label("-TRY AGAIN-", skin);
-        tryAgainLabel.setPosition(325,200);
+        tryAgainLabel.setPosition(325,200); //this only works on "fixed screen resolution"
         tryAgainLabel.setVisible(false);
         tryAgainLabel.addListener(new ClickListener() {
             @Override
@@ -68,13 +96,6 @@ public class HUD extends Stage {
                 super.touchUp(event, x, y, pointer, button);
                 playerRetry = true;
             }
-// shouldn't this work ? https://stackoverflow.com/questions/23174722/mouse-hover-libgdx
-/*
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, int button){
-
-            }
-*/
         });
 
 
@@ -84,7 +105,7 @@ public class HUD extends Stage {
         root.add(gemCounter).expand().left().top().colspan(2);
         root.row();
 
-        ImageButton leftButton = new ImageButton(skin, "left");
+        leftButton = new ImageButton(skin, "left");
         leftButton.setVisible(screenGUIEnabled);
         leftButton.addListener(new ClickListener(){
             @Override
@@ -101,7 +122,7 @@ public class HUD extends Stage {
         });
         root.add(leftButton).left().bottom(); //on screen left
 
-        ImageButton rightButton = new ImageButton(skin, "right");
+        rightButton = new ImageButton(skin, "right");
         rightButton.setVisible(screenGUIEnabled);
         rightButton.addListener(new ClickListener(){
             @Override
@@ -116,20 +137,44 @@ public class HUD extends Stage {
                 rightClicked = false;
             }
         });
-        root.add(rightButton).left().bottom().padLeft(20); //on screen right
+        root.add(rightButton).left().bottom().padLeft(10); //on screen right
 
-        ImageButton upButton = new ImageButton(skin, "up");
+        /**
+         * something to do in the future - learn the skin composer ui & it's capabilities .. see https://github.com/raeleus/skin-composer
+         * this is basic code template to work on ..
+        */
+        /*
+        fireButton = new ImageButton(skin, "bulletfire");
+        fireButton.setVisible(screenGUIEnabled);
+        fireButton.addListener(new ClickListener(){
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                fireClicked = true;
+                return super.touchDown(event, x, y, pointer, button);
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                super.touchUp(event, x, y, pointer, button);
+                fireClicked = false;
+            }
+        });
+        root.add(fireButton).left().bottom().padLeft(20); // fire bullet
+*/
+
+        upButton = new ImageButton(skin, "up");
         upButton.setVisible(screenGUIEnabled);
         upButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                mPlayerScript.movePlayer(JUMP);
+                mPlayerScript.movePlayer(UP);
             }
         });
         root.add(upButton).expand().right().bottom(); // on screen up
 
         addActor(root);
         addActor(tryAgainLabel);
+        //addActor(hudIcons);
     }
 
     public void setPlayerScript(PlayerScript playerScript) {
@@ -151,14 +196,33 @@ public class HUD extends Stage {
             mDiamondsLabel.setText("x" + diamonds);
         }
 
+        if(mPlayerScript.ropeJointDef != null && !mPlayerScript.playerAttached) {
+            mPlayerScript.playerAttached = true;
+            mPlayerScript.ropeJoint = HyperRunner.mSceneLoader.getWorld().createJoint(mPlayerScript.ropeJointDef);
+        }
+
+        if(mPlayerScript.ropeJointDef != null && mPlayerScript.unAttachPlayer) {
+            mPlayerScript.playerAttached = false;
+            mPlayerScript.unAttachPlayer = false;
+            HyperRunner.mSceneLoader.getWorld().destroyJoint(mPlayerScript.ropeJoint);
+            mPlayerScript.ropeJointDef = null;
+            mPlayerScript.ropeJoint = null;
+        }
+
         //check if we need to load a level then do so -
         if (playerRetry) {
+
+            //reset ui
             playerRetry = false;
             tryAgainLabel.setVisible(false);
-            //load the main scene again and recreate the level
-            this.setPlayerScript(HyperRunner.loadDefaultScene());
-            playerDeathTrigger = false; //do not forget to reset all triggers!
+
+            //reset player triggers
+            playerDeathTrigger = false;
             level_1_trigger = false;
+
+            //load the main scene again and recreate the level
+            this.setPlayerScript(LoadUtil.loadDefaultScene());
+
         }
 
 
@@ -166,7 +230,7 @@ public class HUD extends Stage {
             if(!playerDeathTrigger) {
                 playerDeathTrigger = true;
                 HyperRunner.mSceneLoader.loadScene("PlayerDies", HyperRunner.mViewport);
-                HyperRunner.soundManager.play("player dies");
+                HyperRunner.soundManager.play(playerDies);
                 tryAgainLabel.setVisible(true);
             }
         }
